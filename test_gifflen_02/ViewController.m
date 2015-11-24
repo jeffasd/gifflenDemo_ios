@@ -81,26 +81,6 @@ extern      int  giffle_Giffle_AddFrame(int * intPoint);
     giffle_Giffle_Close();
     
     
-    //    public void Encode(String fileName,Bitmap[] bitmaps,int delay){
-    //        if(bitmaps==null||bitmaps.length==0){
-    //            throw new NullPointerException("Bitmaps should have content!!!");
-    //        }
-    //        int width=bitmaps[0].getWidth();
-    //        int height=bitmaps[0].getHeight();
-    //
-    //        if(Init(fileName,width,height,256,100,delay)!=0){
-    //            Log.e(TAG, "GifUtil init failed");
-    //            return;
-    //        }
-    //
-    //        for(Bitmap bp:bitmaps){
-    //            int pixels[]=new  int[width*height];
-    //            bp.getPixels(pixels, 0, width,  0, 0, width, height);
-    //            AddFrame(pixels);
-    //        }
-    //        Close();
-    //    }
-    
     CFRelease(bitmapData);
 //    ViewController后缀为mm可以这样写
 //    DIB *dib = new DIB;
