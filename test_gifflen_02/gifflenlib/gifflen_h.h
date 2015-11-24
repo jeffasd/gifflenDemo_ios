@@ -12,3 +12,9 @@ extern "C"
     void  giffle_Giffle_Close();
     int  giffle_Giffle_AddFrame(const int * intPoint);
 };
+
+
+//    ViewController后缀为mm可以这样写
+//    DIB *dib = new DIB;
+//    char *str = "1212";
+//    dib->saveBMP(str, YES);

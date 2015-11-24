@@ -283,7 +283,7 @@ int  giffle_Giffle_AddFrame(const int * intPoint)
     
 //    ioEnv->GetIntArrayRegion(inArray, (jint)0, (jint)(buffer.width * buffer.height), (jint*)(buffer.bits));
     
-    printf("the length is %d\n", (int)inDIB.width * inDIB.height);
+//    printf("the length is %d\n", (int)inDIB.width * inDIB.height);
 //    (int)inDIB.width * inDIB.height
     
 //    memset(inDIB.bits, 0, (int)inDIB.width * inDIB.height);
@@ -302,14 +302,14 @@ int  giffle_Giffle_AddFrame(const int * intPoint)
 	fwrite(s, 1, 18, pGif);
 
 //	__android_log_write(ANDROID_LOG_VERBOSE, "gifflen","Quantising");
-    printf("Quantising\n");
+//    printf("Quantising\n");
 
 	neuQuant->quantise(outDIB, &inDIB, optCol, optQuality, 0);
 
 	fwrite(outDIB->palette, 1, optCol * 3, pGif);
 
 //	__android_log_write(ANDROID_LOG_VERBOSE, "gifflen","Doing GIF encoding");
-    printf("Doing GIF encoding\n");
+//    printf("Doing GIF encoding\n");
 	GIF_LZW_compressor(outDIB, optCol, pGif, 0);
 
 	return 0;

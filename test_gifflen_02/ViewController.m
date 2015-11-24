@@ -26,7 +26,7 @@ extern      int  giffle_Giffle_AddFrame(int * intPoint);
     
     NSString *filePath = [self backPath:@"Normal"];
     
-    NSArray *fileList = [self findGIFImageInNormal:@"jiafei"];
+    NSArray *fileList = [self findGIFImageInNormal:@"joy"];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *path = [paths objectAtIndex:0];
@@ -43,7 +43,7 @@ extern      int  giffle_Giffle_AddFrame(int * intPoint);
     UIImage *image = _arrayImage[0];
     
     
-    int delay = 3;
+    int delay = 10;
     int width = image.size.width;
     int height = image.size.height;
     
@@ -55,37 +55,38 @@ extern      int  giffle_Giffle_AddFrame(int * intPoint);
 //    NSString * path = [[NSBundle mainBundle] pathForResource:@"filename" ofType:@"jpg"];
 //    UIImage * img = [[UIImage alloc]initWithContentsOfFile:path];
 //    CGImageRef image = [img CGImage];
+    
     CFDataRef bitmapData = CGDataProviderCopyData(CGImageGetDataProvider(image.CGImage));
      int * buffer =  (int *)CFDataGetBytePtr(bitmapData);
-    
     CFIndex length = CFDataGetLength(bitmapData);
     
-//    CGBitmapContextGetData
-    
-//    [self RequestImagePixelData1:image];
-    
-    int * pbuff = RequestImagePixelData(image);
     
     NSString *fileName = [filePath stringByAppendingPathComponent:@"jiafeimao.gif"];
-    
     if(giffle_Giffle_Init([fileName cStringUsingEncoding:NSUTF8StringEncoding], width, height, 256, 100, delay)!=0){
         NSLog(@"GifUtil init failed");
         return;
     }
+    int addFrameStatue = -1;
+    int index = 0;
+    for (UIImage *image in _arrayImage) {
+        int * imageBuffer = [self RequestImagePixelData:image];
+        addFrameStatue = giffle_Giffle_AddFrame(imageBuffer);
+        if (index == 0) {
+            NSLog(@"the count is %lu", (unsigned long)_arrayImage.count);
+        }
+        NSLog(@"the image%d is done", index);
+        ++index;
+        if (addFrameStatue != 0) {
+            NSLog(@"giffle_Giffle_AddFrame error");
+            giffle_Giffle_Close();
+            break;
+        }
+    }
     
-    UIImage *image1 = _arrayImage[1];
-    int *pbuff1 = RequestImagePixelData(image1);
-    
-    giffle_Giffle_AddFrame(pbuff);
-//    giffle_Giffle_AddFrame(pbuff1);
     giffle_Giffle_Close();
     
     
     CFRelease(bitmapData);
-//    ViewController后缀为mm可以这样写
-//    DIB *dib = new DIB;
-//    char *str = "1212";
-//    dib->saveBMP(str, YES);
     
 }
 
@@ -111,28 +112,13 @@ CGContextRef CreateRGBABitmapContext (CGImageRef inImage){
 //    bitmapData = malloc( bitmapByteCount );
     bitmapData = malloc( CGImageGetWidth(inImage) * CGImageGetHeight(inImage) * 4 );
     if (bitmapData == NULL){
-        printf (stderr, "Memory not allocated!");
+        NSLog(@"Memory not allocated!");
         CGColorSpaceRelease( colorSpace );
         return NULL;
     }
-    
-//    context = CGBitmapContextCreate (bitmapData,
-//                                     pixelsWide,
-//                                     pixelsHigh,
-//                                     8,
-//                                     bitmapBytesPerRow,
-//                                     colorSpace,
-//                                     kCGImageAlphaPremultipliedLast);
-    
-    NSLog(@"the bit info is %u", CGImageGetBitmapInfo(inImage));
-    NSLog(@"the AlphaInfo is %u", CGImageGetAlphaInfo(inImage));
-    
-//    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst;
-//    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst;
-    
-    //error
-    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Little | kCGImageAlphaNone;
-    
+//    NSLog(@"the bit info is %u", CGImageGetBitmapInfo(inImage));
+//    NSLog(@"the AlphaInfo is %u", CGImageGetAlphaInfo(inImage));
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst;
     context = CGBitmapContextCreate (bitmapData,
                                      pixelsWide,
                                      pixelsHigh,
@@ -140,7 +126,6 @@ CGContextRef CreateRGBABitmapContext (CGImageRef inImage){
                                      bitmapBytesPerRow,
                                      colorSpace,
                                      bitmapInfo);
-    
     if (context == NULL){
         free (bitmapData);
         fprintf (stderr, "Context not created!");
@@ -151,37 +136,53 @@ CGContextRef CreateRGBABitmapContext (CGImageRef inImage){
         //严重crash
         exit(-1);
     }
-    
     CGColorSpaceRelease( colorSpace );
-    
     return context;
 }
 
-    // Return Image Pixel data as an RGBA bitmap
-int * RequestImagePixelData(UIImage *inImage) {
-        
-        CGImageRef img = [inImage CGImage];
-        CGSize size = [inImage size];
-        CGContextRef cgctx = CreateRGBABitmapContext(img);
-        if (cgctx == NULL)
-            return NULL;
-        
-        CGRect rect = {{0,0},{size.width, size.height}};
-        CGContextDrawImage(cgctx, rect, img);
-    
-        int * data = CGBitmapContextGetData (cgctx);
-    
-    
-    
-        NSLog(@"the bit info is %u", CGBitmapContextGetBitmapInfo(cgctx));
-        NSLog(@"the AlphaInfo is %u", CGBitmapContextGetAlphaInfo(cgctx));
-    
-        CGContextRelease(cgctx);
-        return data;
-}
+//    // Return Image Pixel data as an RGBA bitmap
+//int * RequestImagePixelData(UIImage *inImage) {
+//        
+//        CGImageRef img = [inImage CGImage];
+//        CGSize size = [inImage size];
+//        CGContextRef cgctx = CreateRGBABitmapContext(img);
+//        if (cgctx == NULL)
+//            return NULL;
+//        
+//        CGRect rect = {{0,0},{size.width, size.height}};
+//        CGContextDrawImage(cgctx, rect, img);
+//    
+//        int * data = CGBitmapContextGetData (cgctx);
+//
+//    
+//        NSLog(@"the bit info is %u", CGBitmapContextGetBitmapInfo(cgctx));
+//        NSLog(@"the AlphaInfo is %u", CGBitmapContextGetAlphaInfo(cgctx));
+//    
+//        CGContextRelease(cgctx);
+//        return data;
+//}
+
 
 // Return Image Pixel data as an RGBA bitmap
-- (int *)RequestImagePixelData1:(UIImage *)inImage
+- (int *)RequestImagePixelData:(UIImage *)inImage
+{
+    CGImageRef img = [inImage CGImage];
+    CGSize size = [inImage size];
+    UIGraphicsBeginImageContextWithOptions(size, NO, 1);
+    CGContextRef cgctx = CreateRGBABitmapContext(img);
+    if (cgctx == NULL)
+        return NULL;
+    CGRect rect = {{0,0},{size.width, size.height}};
+    CGContextDrawImage(cgctx, rect, img);
+    int * data = CGBitmapContextGetData (cgctx);
+//    NSLog(@"the bit info is %u", CGBitmapContextGetBitmapInfo(cgctx));
+    CGContextRelease(cgctx);
+    return data;
+}
+
+
+// Return Image Pixel data as an RGBA bitmap
+- (int *)RequestImagePixelDataSaveAndShow:(UIImage *)inImage
 {
     
     CGImageRef img = [inImage CGImage];
@@ -214,7 +215,7 @@ int * RequestImagePixelData(UIImage *inImage) {
     
     //        CGBitmapContextGetBitmapInfo
     
-    NSLog(@"the bit info is %u", CGBitmapContextGetBitmapInfo(cgctx));
+//    NSLog(@"the bit info is %u", CGBitmapContextGetBitmapInfo(cgctx));
     
     CGContextRelease(cgctx);
     return data;
